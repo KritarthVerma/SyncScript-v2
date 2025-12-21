@@ -5,7 +5,7 @@ import connectDB from './config/db.js';
 import userRoutes from './routes/userRoutes.js';
 import cookieParser from "cookie-parser";
 import roomRoutes from './routes/roomRoutes.js';
-//import editorRoutes from './routes/editorRoutes.js';
+import editorRoutes from './routes/editorRoutes.js';
 
 dotenv.config();
 connectDB();
@@ -25,7 +25,7 @@ app.use((req, res, next) => {
 // Central routing middleware
 app.use("/api/user", userRoutes);
 app.use("/api/room", roomRoutes);
-//app.use("/api/editor", editorRoutes);
+app.use("/api/editor", editorRoutes);
 
 //Test route
 app.get("/", (req, res) => {

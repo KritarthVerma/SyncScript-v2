@@ -35,13 +35,13 @@ const userSchema = new mongoose.Schema(
     // Solo editor settings
     personalSettingsId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Settings",
+      ref: "Editor",
     },
 
     // Currently active settings (solo OR room)
     activeSettingsId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Settings",
+      ref: "Editor",
     },
 
     currentRoomId: {
