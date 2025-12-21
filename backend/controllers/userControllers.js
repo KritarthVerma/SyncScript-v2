@@ -108,3 +108,58 @@ export const login = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
+export const getMe = async (req, res) => {
+  try {
+    const user = await User.findById(req.userId).select("-password");
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    res.status(200).json(user);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const updateTheme = async (req, res) => {
+  try {
+    const { theme } = req.body;
+    if (!theme) return res.status(400).json({ message: "Theme required" });
+
+    const user = await User.findByIdAndUpdate(
+      req.userId,
+      { theme },
+      { new: true }
+    ).select("-password");
+
+    res.status(200).json({
+      message: "Theme updated",
+      theme: user.theme
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const updateFontSize = async (req, res) => {
+  try {
+    const { fontSize } = req.body;
+    if (!fontSize) return res.status(400).json({ message: "Font size required" });
+
+    const user = await User.findByIdAndUpdate(
+      req.userId,
+      { fontSize },
+      { new: true }
+    ).select("-password");
+
+    res.status(200).json({
+      message: "Font size updated",
+      fontSize: user.fontSize
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+

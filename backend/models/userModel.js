@@ -42,14 +42,7 @@ const userSchema = new mongoose.Schema(
     activeSettingsId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Settings",
-    },
-
-    // Null = solo, roomId = user inside room
-    currentRoomId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Room",
-      default: null,
-    },
+    }
   },
   { timestamps: true }
 );

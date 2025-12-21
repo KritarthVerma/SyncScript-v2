@@ -1,25 +1,16 @@
 import express from "express";
-import { signup, login } from "../controllers/userControllers.js";
+import { signup, login, getMe, updateTheme, updateFontSize } from "../controllers/userControllers.js";
 import { authMiddleware } from "../controllers/authControllers.js";
 
 const router = express.Router();
 router.post("/signup", signup);
 router.post("/login", login);
+router.get("/me", authMiddleware, getMe);
+router.patch("/settings/theme", authMiddleware, updateTheme);
+router.patch("/settings/font-size", authMiddleware, updateFontSize);
+
 
 export default router;
-
-
-// Get user profile
-router.get("/:id", async (req, res) => {
-  try {
-    const user = await User.findById(req.params.id).populate("currentRoom");
-    if (!user) return res.status(404).json({ message: "User not found" });
-
-    res.json(user);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
 
 // Update personalization (theme, fontSize)
 router.put("/:id/personalization", async (req, res) => {
