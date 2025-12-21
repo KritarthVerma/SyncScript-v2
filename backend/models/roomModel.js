@@ -25,7 +25,7 @@ const roomSchema = new mongoose.Schema(
     // Shared language + code state
     settingsId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Settings",
+      ref: "Editor",
       required: true,
     },
   },
