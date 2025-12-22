@@ -2,6 +2,7 @@
 import Room from "../models/roomModel.js";
 import Editor from "../models/editorModel.js";
 import User from "../models/userModel.js";
+import { updateUserRoom } from "../utils/userHelpers.js";
 
 export const createRoom = async (req, res) => {
   try {
@@ -67,10 +68,7 @@ export const joinRoom = async (req, res) => {
     await room.save();
 
     // Update user state
-    await User.findByIdAndUpdate(userId, {
-      activeSettingsId: room.settingsId,  // assuming each room has its Settings
-      currentRoomId: room._id
-    });
+    await updateUserRoom(userId, room._id, room.settingsId);
 
     res.status(200).json({
       message: "Joined room successfully",
@@ -107,10 +105,7 @@ export const leaveRoom = async (req, res) => {
     const user = await User.findById(userId);
 
     // Update user
-    await User.findByIdAndUpdate(userId, {
-      currentRoomId: null,
-      activeSettingsId: user.personalSettingsId   // <-- YOUR PERSONAL SETTINGS FIELD
-    });
+    await updateUserRoom(userId, null, user.personalSettingsId);
 
     res.json({ message: "Left room successfully" });
 
