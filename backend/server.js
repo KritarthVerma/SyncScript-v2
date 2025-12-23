@@ -12,7 +12,12 @@ connectDB();
 
 const app = express();
 
-app.use(cors()); //Enables Cross-Origin Resource Sharing so your backend can accept requests from different domains
+app.use(
+  cors({
+    origin: process.env.FRONTED_URL,
+    credentials: true,
+  })
+); //Enables Cross-Origin Resource Sharing so your backend can accept requests from different domains
 app.use(express.json()); //Parses incoming JSON request bodies and makes the data available in req.body.
 app.use(cookieParser()); // Parses cookies from incoming requests and makes them available in req.cookies.
 
