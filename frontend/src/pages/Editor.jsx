@@ -1,11 +1,20 @@
-import { useState, useEffect } from "react";
-import api from "../utils/axios.js";
-import { useNavigate } from "react-router-dom";
+import Navbar from "../components/Navbar";
+import EditorPanel from "../components/EditorPanel";
 
-const Editor = () => {
+export default function Editor(){
   return (
-    <h1>Editor Page</h1>
+    <div style={styles.wrapper}>
+      <Navbar />
+      <EditorPanel />
+    </div>
   );
 };
 
-export default Editor;
+const styles = {
+  wrapper: {
+    height: "100vh",
+    display: "flex",
+    flexDirection: "column",
+    overflow: "hidden"
+  }
+};

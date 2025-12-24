@@ -2,7 +2,7 @@ import React, { use, useState } from 'react';
 import api from '../utils/axios';
 import {useNavigate} from 'react-router-dom';
 
-export default function SignupComponent({ switchToLogin }) {
+export default function Signup({ switchToLogin }) {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
