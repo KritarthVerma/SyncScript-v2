@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../utils/axios.js';
+import { saveUserSettings } from '../utils/user.js';
 
 export default function LoginComponent({switchToSignUp}) {
   const [email, setEmail] = useState('');
@@ -21,6 +22,7 @@ export default function LoginComponent({switchToSignUp}) {
         const res = await api.post("/user/login", { email, password });
 
         if (res.status === 200 && res.data.user) {
+          saveUserSettings(res.data.user);
           navigate("/editor");
         }
       } catch (err) {

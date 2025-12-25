@@ -1,5 +1,14 @@
-export default function EditorPanel() {
+import MonacoEditor from "@monaco-editor/react";
+
+export default function EditorPanel({content, theme, setTheme, fontSize, setFontSize, language, setLanguage}) {
   return (
-    <h1>Editor Panel</h1>
+    <MonacoEditor
+        options={{minimap: {enabled: false}, fontSize: fontSize}}
+        height="100%"
+        width="100%"
+        language={language}
+        defaultValue={content}
+        theme={theme}
+    />
   );
 };

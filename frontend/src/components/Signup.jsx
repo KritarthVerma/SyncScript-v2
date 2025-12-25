@@ -1,6 +1,7 @@
 import React, { use, useState } from 'react';
 import api from '../utils/axios';
 import {useNavigate} from 'react-router-dom';
+import { saveUserSettings } from '../utils/user';
 
 export default function Signup({ switchToLogin }) {
   const [formData, setFormData] = useState({
@@ -53,6 +54,7 @@ export default function Signup({ switchToLogin }) {
       });
 
       if (res.status === 201 && res.data.user) {
+        saveUserSettings(res.data.user);
         navigate("/editor");
       }
 

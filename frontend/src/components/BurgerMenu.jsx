@@ -1,29 +1,92 @@
 import React, { useState } from 'react';
+import api from '../utils/axios.js';
+import { clearUserSettings } from '../utils/user.js';
+import {useNavigate} from 'react-router-dom';
 
-export default function BurgerMenu() {
+export default function BurgerMenu({theme, setTheme, fontSize, setFontSize, language, setLanguage}) {
   const [isOpen, setIsOpen] = useState(false);
+  const [activeSubmenu, setActiveSubmenu] = useState(null);
+
+  const navigate = useNavigate();
+
+  const handleItemClick = async (item) => {
+    if (item.type === 'separator') return;
+    
+    if (item.hasSubmenu) {
+      setActiveSubmenu(activeSubmenu === item.label ? null : item.label);
+      return;
+    }
+
+    {/*Handle Logout*/}
+    if(item.label === 'Logout'){
+      try {
+        await api.post("/user/logout"); 
+        clearUserSettings();
+        navigate("/");
+      } catch (err) {
+        console.log(err);
+      }
+    }
+
+    console.log('Menu item clicked:', item.label);
+    setIsOpen(false);
+    setActiveSubmenu(null);
+  };
+
+  const handleThemeChange = (value) => {
+    setTheme(value);
+    console.log('Theme changed to:', value);
+  };
+
+  const handleFontSizeChange = (value) => {
+    setFontSize(value);
+  };
+
+  const handleLanguageChange = (value) => {
+    setLanguage(value);
+    setIsOpen(false);
+    setActiveSubmenu(null);
+  };
 
   const menuItems = [
     { label: 'Save', icon: '💾', shortcut: 'Ctrl+S' },
     { type: 'separator' },
     { label: 'Export', icon: '📤', shortcut: 'Ctrl+E' },
     { type: 'separator' },
-    { label: 'Personalization', icon: '🎨', shortcut: '' },
+    { label: 'Personalization', icon: '🎨', shortcut: '', hasSubmenu: true },
     { type: 'separator' },
-    { label: 'Language', icon: '💻', shortcut: '' },
+    { label: 'Language', icon: '💻', shortcut: '', hasSubmenu: true },
     { type: 'separator' },
     { label: 'Logout', icon: '🚪', shortcut: '' }
   ];
 
-  const handleItemClick = (item) => {
-    if (item.type === 'separator') return;
-  };
+  const themeOptions = [
+    { value: 'dark', label: 'Dark', icon: '🌙' },
+    { value: 'light', label: 'Light', icon: '☀️' }
+  ];
+
+  const fontSizeOptions = [
+    { value: 12, label: 'Small' },
+    { value: 14, label: 'Medium' },
+    { value: 16, label: 'Large' },
+    { value: 18, label: 'Extra Large' }
+  ];
+
+  const languageOptions = [
+    { value: 'cpp', label: 'C++' },
+    { value: 'python', label: 'Python' },
+    { value: 'javascript', label: 'JavaScript' },
+    { value: 'java', label: 'Java' }
+  ];
 
   return (
     <div style={{ position: 'relative' }}>
       {/* Burger Icon Button */}
       <button
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={() => {
+          setIsOpen(!isOpen);
+          setActiveSubmenu(null);
+        }}
         style={{
           width: '40px',
           height: '40px',
@@ -70,7 +133,10 @@ export default function BurgerMenu() {
         <>
           {/* Backdrop overlay */}
           <div
-            onClick={() => setIsOpen(false)}
+            onClick={() => {
+              setIsOpen(false);
+              setActiveSubmenu(null);
+            }}
             style={{
               position: 'fixed',
               top: 0,
@@ -83,19 +149,24 @@ export default function BurgerMenu() {
 
           {/* Menu Panel */}
           <div style={{
-            position: 'absolute',
-            top: '50px',
-            right: '0',
+            position: 'fixed',
+            top: '60px',
+            right: '10px',
             minWidth: '240px',
+            maxWidth: '90vw',
+            maxHeight: 'calc(100vh - 80px)',
             backgroundColor: '#393E46',
             border: '1px solid #222831',
             borderRadius: '4px',
             boxShadow: '0 4px 16px rgba(0, 0, 0, 0.4)',
             zIndex: 1000,
-            overflow: 'hidden',
-            fontFamily: 'system-ui, -apple-system, sans-serif'
+            overflowY: 'auto',
+            overflowX: 'hidden',
+            fontFamily: 'system-ui, -apple-system, sans-serif',
+            WebkitOverflowScrolling: 'touch'
           }}>
             {menuItems.map((item, index) => {
+                {/* Separator */}
               if (item.type === 'separator') {
                 return (
                   <div
@@ -108,46 +179,229 @@ export default function BurgerMenu() {
                   />
                 );
               }
-
+              {/* Menu Item */}
               return (
-                <div
-                  key={index}
-                  onClick={() => handleItemClick(item)}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    padding: '8px 16px',
-                    cursor: 'pointer',
-                    transition: 'background-color 0.15s',
-                    color: '#EEEEEE',
-                    fontSize: '14px'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = '#00ADB5';
-                    e.currentTarget.style.color = '#222831';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = 'transparent';
-                    e.currentTarget.style.color = '#EEEEEE';
-                  }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <span style={{ fontSize: '16px', width: '20px', textAlign: 'center' }}>
-                      {item.icon}
-                    </span>
-                    <span style={{ fontWeight: '400' }}>
-                      {item.label}
-                    </span>
+                <div key={index}>
+                  <div
+                    onClick={() => handleItemClick(item)}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      padding: '8px 16px',
+                      cursor: 'pointer',
+                      transition: 'background-color 0.15s',
+                      color: '#EEEEEE',
+                      fontSize: '14px',
+                      backgroundColor: activeSubmenu === item.label ? '#222831' : 'transparent'
+                    }}
+                    onMouseEnter={(e) => {
+                      if (activeSubmenu !== item.label) {
+                        e.currentTarget.style.backgroundColor = '#00ADB5';
+                        e.currentTarget.style.color = '#222831';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (activeSubmenu !== item.label) {
+                        e.currentTarget.style.backgroundColor = 'transparent';
+                        e.currentTarget.style.color = '#EEEEEE';
+                      }
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <span style={{ fontSize: '16px', width: '20px', textAlign: 'center' }}>
+                        {item.icon}
+                      </span>
+                      <span style={{ fontWeight: '400' }}>
+                        {item.label}
+                      </span>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      {item.shortcut && (
+                        <span style={{
+                          fontSize: '12px',
+                          opacity: 0.7
+                        }}>
+                          {item.shortcut}
+                        </span>
+                      )}
+                      {item.hasSubmenu && (
+                        <span style={{ fontSize: '12px' }}>▶</span>
+                      )}
+                    </div>
                   </div>
-                  {item.shortcut && (
-                    <span style={{
-                      fontSize: '12px',
-                      opacity: 0.7,
-                      marginLeft: '24px'
+
+                  {/* Personalization Submenu */}
+                  {item.label === 'Personalization' && activeSubmenu === 'Personalization' && (
+                    <div style={{
+                      backgroundColor: '#222831',
+                      padding: '12px 16px',
+                      borderTop: '1px solid #00ADB5'
                     }}>
-                      {item.shortcut}
-                    </span>
+                      {/* Theme Section */}
+                      <div style={{ marginBottom: '12px' }}>
+                        <div style={{
+                          color: '#EEEEEE',
+                          fontSize: '12px',
+                          fontWeight: '600',
+                          marginBottom: '8px',
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.5px'
+                        }}>
+                          Theme
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                          {themeOptions.map((t) => (
+                            <div
+                              key={t.value}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleThemeChange(t.value);
+                              }}
+                              style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '8px',
+                                padding: '8px 10px',
+                                borderRadius: '4px',
+                                cursor: 'pointer',
+                                backgroundColor: theme === t.value ? '#00ADB5' : 'transparent',
+                                color: theme === t.value ? '#222831' : '#EEEEEE',
+                                transition: 'all 0.15s',
+                                fontSize: '13px'
+                              }}
+                              onMouseEnter={(e) => {
+                                if (theme !== t.value) {
+                                  e.currentTarget.style.backgroundColor = '#393E46';
+                                }
+                              }}
+                              onMouseLeave={(e) => {
+                                if (theme !== t.value) {
+                                  e.currentTarget.style.backgroundColor = 'transparent';
+                                }
+                              }}
+                            >
+                              <span style={{ fontSize: '14px' }}>{t.icon}</span>
+                              <span style={{ fontWeight: theme === t.value ? '600' : '400' }}>
+                                {t.label}
+                              </span>
+                              {theme === t.value && (
+                                <span style={{ marginLeft: 'auto', fontSize: '12px' }}>✓</span>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Font Size Section */}
+                      <div>
+                        <div style={{
+                          color: '#EEEEEE',
+                          fontSize: '12px',
+                          fontWeight: '600',
+                          marginBottom: '8px',
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.5px'
+                        }}>
+                          Font Size
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                          {fontSizeOptions.map((f) => (
+                            <div
+                              key={f.value}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleFontSizeChange(f.value);
+                              }}
+                              style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                padding: '8px 10px',
+                                borderRadius: '4px',
+                                cursor: 'pointer',
+                                backgroundColor: fontSize === f.value ? '#00ADB5' : 'transparent',
+                                color: fontSize === f.value ? '#222831' : '#EEEEEE',
+                                transition: 'all 0.15s',
+                                fontSize: '13px'
+                              }}
+                              onMouseEnter={(e) => {
+                                if (fontSize !== f.value) {
+                                  e.currentTarget.style.backgroundColor = '#393E46';
+                                }
+                              }}
+                              onMouseLeave={(e) => {
+                                if (fontSize !== f.value) {
+                                  e.currentTarget.style.backgroundColor = 'transparent';
+                                }
+                              }}
+                            >
+                              <span style={{ fontWeight: fontSize === f.value ? '600' : '400' }}>
+                                {f.label}
+                              </span>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                <span style={{ fontSize: '11px', opacity: 0.7 }}>
+                                  {f.value}
+                                </span>
+                                {fontSize === f.value && (
+                                  <span style={{ fontSize: '12px' }}>✓</span>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Language Submenu */}
+                  {item.label === 'Language' && activeSubmenu === 'Language' && (
+                    <div style={{
+                      backgroundColor: '#222831',
+                      padding: '8px 16px',
+                      borderTop: '1px solid #00ADB5'
+                    }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        {languageOptions.map((lang) => (
+                          <div
+                            key={lang.value}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleLanguageChange(lang.value);
+                            }}
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'space-between',
+                              padding: '8px 10px',
+                              borderRadius: '4px',
+                              cursor: 'pointer',
+                              backgroundColor: language === lang.value ? '#00ADB5' : 'transparent',
+                              color: language === lang.value ? '#222831' : '#EEEEEE',
+                              transition: 'all 0.15s',
+                              fontSize: '13px'
+                            }}
+                            onMouseEnter={(e) => {
+                              if (language !== lang.value) {
+                                e.currentTarget.style.backgroundColor = '#393E46';
+                              }
+                            }}
+                            onMouseLeave={(e) => {
+                              if (language !== lang.value) {
+                                e.currentTarget.style.backgroundColor = 'transparent';
+                              }
+                            }}
+                          >
+                            <span style={{ fontWeight: language === lang.value ? '600' : '400' }}>
+                              {lang.label}
+                            </span>
+                            {language === lang.value && (
+                              <span style={{ fontSize: '12px' }}>✓</span>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                   )}
                 </div>
               );
