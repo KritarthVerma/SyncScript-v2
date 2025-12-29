@@ -1,6 +1,6 @@
 import Navbar from "../components/Navbar";
 import EditorPanel from "../components/EditorPanel";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import api from "../utils/axios";
 import { getUserSettings, saveUserSettings } from "../utils/user";
 
@@ -9,6 +9,7 @@ export default function Editor(){
   const [theme, setTheme] = useState(userSettings.theme);
   const [fontSize, setFontSize] = useState(userSettings.fontSize);
   const [language, setLanguage] = useState(userSettings.activeSettingsId.language);
+  const editorRef = useRef(null);
 
   const handleLanguageChange = async (newLanguage) => {
     setLanguage(newLanguage);
@@ -70,14 +71,18 @@ export default function Editor(){
 
   };
 
+  const handleEditorMount = (editor) => {
+    editorRef.current = editor;
+  }
+
   const handleThemeChange = (newTheme) => {
     setTheme(newTheme);
   };
 
   return (
     <div style={styles.wrapper}>
-      <Navbar theme={theme} setTheme={handleThemeChange} fontSize={fontSize} setFontSize={handleFontSizeChange} language={language} setLanguage={handleLanguageChange}/>
-      <EditorPanel content={userSettings.activeSettingsId.content} theme={theme} setTheme={handleThemeChange} fontSize={fontSize} setFontSize={handleFontSizeChange} language={language} setLanguage={handleLanguageChange}/>
+      <Navbar editorRef={editorRef} theme={theme} setTheme={handleThemeChange} fontSize={fontSize} setFontSize={handleFontSizeChange} language={language} setLanguage={handleLanguageChange}/>
+      <EditorPanel onMount={handleEditorMount} content={userSettings.activeSettingsId.content} theme={theme} setTheme={handleThemeChange} fontSize={fontSize} setFontSize={handleFontSizeChange} language={language} setLanguage={handleLanguageChange}/>
     </div>
   );
 };

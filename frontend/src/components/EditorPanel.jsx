@@ -1,6 +1,6 @@
 import MonacoEditor from "@monaco-editor/react";
 
-export default function EditorPanel({content, theme, setTheme, fontSize, setFontSize, language, setLanguage}) {
+export default function EditorPanel({onMount,content, theme, setTheme, fontSize, setFontSize, language, setLanguage}) {
   return (
     <MonacoEditor
         options={{minimap: {enabled: false}, fontSize: fontSize}}
@@ -9,6 +9,7 @@ export default function EditorPanel({content, theme, setTheme, fontSize, setFont
         language={language}
         defaultValue={content}
         theme={theme}
+        onMount={onMount}
     />
   );
 };

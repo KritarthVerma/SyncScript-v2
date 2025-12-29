@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import api from '../utils/axios.js';
-import { clearUserSettings } from '../utils/user.js';
+import { getUserSettings, saveUserSettings,clearUserSettings } from '../utils/user.js';
 import {useNavigate} from 'react-router-dom';
+import { jsPDF } from "jspdf";
 
-export default function BurgerMenu({theme, setTheme, fontSize, setFontSize, language, setLanguage}) {
+export default function BurgerMenu({editorRef,theme, setTheme, fontSize, setFontSize, language, setLanguage}) {
   const [isOpen, setIsOpen] = useState(false);
   const [activeSubmenu, setActiveSubmenu] = useState(null);
 
@@ -28,6 +29,68 @@ export default function BurgerMenu({theme, setTheme, fontSize, setFontSize, lang
       }
     }
 
+    {/*Handle Save*/}
+    if(item.label === 'Save'){
+      const content = editorRef.current.getValue();
+      try {
+        const { data } = await api.put("/editor/user", { content });
+        console.log("Content saved →", data);
+        const user = getUserSettings();
+        if (user) {
+          const updatedUser = {
+              ...user,
+              personalSettingsId: {
+                ...user.personalSettingsId,
+                content: data.settings.content
+              },
+              activeSettingsId: {
+                ...user.activeSettingsId,
+                content : data.settings.content
+              }
+            };
+          saveUserSettings(updatedUser);
+        }
+      } catch (err) {
+        console.error("Content save failed:", err?.response?.data || err.message);
+      }
+    }
+
+    if(item.label === 'Export'){
+      if (!editorRef?.current) return;
+
+      const code = editorRef.current.getValue() || "";
+
+      const pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "pt",
+        format: "a4"
+      });
+
+      const margin = 40;
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const usableWidth = pageWidth - margin * 2;
+      const fileName = "code_export.pdf";
+      const lineHeight = fontSize * 1.5;
+
+      pdf.setFont("Courier", "Normal");   // Best for code
+      pdf.setFontSize(fontSize);
+
+      const text = code.replace(/\t/g, "  ");         // Normalize tabs
+      const lines = pdf.splitTextToSize(text, usableWidth);
+
+      let y = margin;
+
+      for (const line of lines) {
+        if (y + lineHeight > pageHeight - margin) {
+          pdf.addPage();
+          y = margin;
+        }
+        pdf.text(line, margin, y);
+        y += lineHeight;
+      }
+      pdf.save(fileName);
+    }
     console.log('Menu item clicked:', item.label);
     setIsOpen(false);
     setActiveSubmenu(null);
