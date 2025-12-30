@@ -4,7 +4,7 @@ import { getUserSettings, saveUserSettings,clearUserSettings } from '../utils/us
 import {useNavigate} from 'react-router-dom';
 import { jsPDF } from "jspdf";
 
-export default function BurgerMenu({editorRef,theme, setTheme, fontSize, setFontSize, language, setLanguage}) {
+export default function BurgerMenu({inRoom,editorRef,theme, setTheme, fontSize, setFontSize, language, setLanguage}) {
   const [isOpen, setIsOpen] = useState(false);
   const [activeSubmenu, setActiveSubmenu] = useState(null);
 
@@ -55,6 +55,7 @@ export default function BurgerMenu({editorRef,theme, setTheme, fontSize, setFont
       }
     }
 
+    {/*Handle Export*/}
     if(item.label === 'Export'){
       if (!editorRef?.current) return;
 
@@ -111,10 +112,28 @@ export default function BurgerMenu({editorRef,theme, setTheme, fontSize, setFont
     setActiveSubmenu(null);
   };
 
+  const handleRoomAction = (action) => {
+    if (action === 'create' && !inRoom) {
+      console.log('Creating room...');
+      setIsOpen(false);
+      setActiveSubmenu(null);
+    } else if (action === 'join' && !inRoom) {
+      console.log('Joining room...');
+      setIsOpen(false);
+      setActiveSubmenu(null);
+    } else if (action === 'leave' && inRoom) {
+      console.log('Leaving room...');
+      setIsOpen(false);
+      setActiveSubmenu(null);
+    }
+  };
+
   const menuItems = [
     { label: 'Save', icon: '💾', shortcut: 'Ctrl+S' },
     { type: 'separator' },
     { label: 'Export', icon: '📤', shortcut: 'Ctrl+E' },
+    { type: 'separator' },
+    { label: 'Room', icon: '🚪', shortcut: '', hasSubmenu: true },
     { type: 'separator' },
     { label: 'Personalization', icon: '🎨', shortcut: '', hasSubmenu: true },
     { type: 'separator' },
@@ -140,6 +159,12 @@ export default function BurgerMenu({editorRef,theme, setTheme, fontSize, setFont
     { value: 'python', label: 'Python' },
     { value: 'javascript', label: 'JavaScript' },
     { value: 'java', label: 'Java' }
+  ];
+
+  const roomOptions = [
+    { action: 'create', label: 'Create Room', icon: '➕' },
+    { action: 'join', label: 'Join Room', icon: '🔗' },
+    { action: 'leave', label: 'Leave Room', icon: '🚶' }
   ];
 
   return (
@@ -293,6 +318,64 @@ export default function BurgerMenu({editorRef,theme, setTheme, fontSize, setFont
                       )}
                     </div>
                   </div>
+
+                  {/* Room Submenu */}
+                  {item.label === 'Room' && activeSubmenu === 'Room' && (
+                    <div style={{
+                      backgroundColor: '#222831',
+                      padding: '8px 16px',
+                      borderTop: '1px solid #00ADB5'
+                    }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        {roomOptions.map((option) => {
+                          const isDisabled = (option.action === 'leave' && !inRoom) || 
+                                           ((option.action === 'create' || option.action === 'join') && inRoom);
+                          
+                          return (
+                            <div
+                              key={option.action}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (!isDisabled) {
+                                  handleRoomAction(option.action);
+                                }
+                              }}
+                              style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '8px',
+                                padding: '8px 10px',
+                                borderRadius: '4px',
+                                cursor: isDisabled ? 'not-allowed' : 'pointer',
+                                backgroundColor: 'transparent',
+                                color: isDisabled ? '#666' : '#EEEEEE',
+                                transition: 'all 0.15s',
+                                fontSize: '13px',
+                                opacity: isDisabled ? 0.5 : 1
+                              }}
+                              onMouseEnter={(e) => {
+                                if (!isDisabled) {
+                                  e.currentTarget.style.backgroundColor = '#00ADB5';
+                                  e.currentTarget.style.color = '#222831';
+                                }
+                              }}
+                              onMouseLeave={(e) => {
+                                if (!isDisabled) {
+                                  e.currentTarget.style.backgroundColor = 'transparent';
+                                  e.currentTarget.style.color = '#EEEEEE';
+                                }
+                              }}
+                            >
+                              <span style={{ fontSize: '14px' }}>{option.icon}</span>
+                              <span style={{ fontWeight: '400' }}>
+                                {option.label}
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
 
                   {/* Personalization Submenu */}
                   {item.label === 'Personalization' && activeSubmenu === 'Personalization' && (

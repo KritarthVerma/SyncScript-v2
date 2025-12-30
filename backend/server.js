@@ -6,6 +6,8 @@ import userRoutes from './routes/userRoutes.js';
 import cookieParser from "cookie-parser";
 import roomRoutes from './routes/roomRoutes.js';
 import editorRoutes from './routes/editorRoutes.js';
+import http from 'http';
+import { initSocket } from './config/socket.js';
 
 dotenv.config();
 connectDB();
@@ -14,7 +16,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: process.env.FRONTED_URL,
+    origin: process.env.FRONTEND_URL,
     credentials: true,
   })
 ); //Enables Cross-Origin Resource Sharing so your backend can accept requests from different domains
@@ -37,6 +39,11 @@ app.get("/", (req, res) => {
   res.send("API is running...");
 });
 
+const server = http.createServer(app);
+
+// Initialize socket
+initSocket(server);
+
 // Server
 const PORT = process.env.PORT;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+server.listen(PORT, () => console.log(`Server running on port ${PORT}`));

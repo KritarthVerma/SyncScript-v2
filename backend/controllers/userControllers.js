@@ -18,7 +18,7 @@ export const signup = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const user = await User.create({
+    let user = await User.create({
       name,
       email,
       password: hashedPassword,
@@ -26,6 +26,11 @@ export const signup = async (req, res) => {
       activeSettingsId: defaultSettings._id,
       currentRoomId: null,
     });
+
+    user = await User.findById(user._id)
+      .select("-password")
+      .populate("personalSettingsId")
+      .populate("activeSettingsId");
 
     // Generate JWT
     const token = jwt.sign(
@@ -66,7 +71,7 @@ export const login = async (req, res) => {
       return res.status(400).json({ message: "Email & password required" });
 
     // Find user
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email }).populate("personalSettingsId").populate("activeSettingsId");
     if (!user)
       return res.status(400).json({ message: "User does not exist" });
 
@@ -92,15 +97,7 @@ export const login = async (req, res) => {
     res.status(200).json({
       message: "Login successful",
       token,
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        theme: user.theme,
-        fontSize: user.fontSize,
-        currentRoomId: user.currentRoomId,
-        activeSettingsId: user.activeSettingsId,
-      },
+      user
     });
 
   } catch (error) {
@@ -111,9 +108,10 @@ export const login = async (req, res) => {
 
 export const getMe = async (req, res) => {
   try {
-    const user = await User.findById(req.userId).select("-password");
-    if (!user) return res.status(404).json({ message: "User not found" });
+    const user = await User.findById(req.userId).select("-password").populate("personalSettingsId").populate("activeSettingsId");
 
+    if (!user) return res.status(404).json({ message: "User not found" });
+    console.log('Fetched user data:', user);
     res.status(200).json(user);
   } catch (err) {
     console.error(err);

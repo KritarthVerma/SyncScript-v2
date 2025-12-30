@@ -9,6 +9,7 @@ export default function Editor(){
   const [theme, setTheme] = useState(userSettings.theme);
   const [fontSize, setFontSize] = useState(userSettings.fontSize);
   const [language, setLanguage] = useState(userSettings.activeSettingsId.language);
+  const [inRoom, setInRoom] = useState(userSettings.currentRoomId ? true : false);
   const editorRef = useRef(null);
 
   const handleLanguageChange = async (newLanguage) => {
@@ -81,7 +82,7 @@ export default function Editor(){
 
   return (
     <div style={styles.wrapper}>
-      <Navbar editorRef={editorRef} theme={theme} setTheme={handleThemeChange} fontSize={fontSize} setFontSize={handleFontSizeChange} language={language} setLanguage={handleLanguageChange}/>
+      <Navbar inRoom={inRoom} editorRef={editorRef} theme={theme} setTheme={handleThemeChange} fontSize={fontSize} setFontSize={handleFontSizeChange} language={language} setLanguage={handleLanguageChange}/>
       <EditorPanel onMount={handleEditorMount} content={userSettings.activeSettingsId.content} theme={theme} setTheme={handleThemeChange} fontSize={fontSize} setFontSize={handleFontSizeChange} language={language} setLanguage={handleLanguageChange}/>
     </div>
   );
