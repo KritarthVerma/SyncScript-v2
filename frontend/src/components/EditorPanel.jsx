@@ -7,7 +7,7 @@ export default function EditorPanel({onMount,content, theme, setTheme, fontSize,
         height="100%"
         width="100%"
         language={language}
-        defaultValue={content}
+        value={content}
         theme={theme}
         onMount={onMount}
     />

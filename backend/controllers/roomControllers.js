@@ -16,7 +16,7 @@ export const createRoom = async (req, res) => {
     // 1️⃣ Create default settings for this room
     const roomSettings = await Editor.create({
       language: "cpp",
-      code: "// Welcome to SyncScript Room"
+      content: "// Welcome to SyncScript Room"
     });
 
     // 2️⃣ Create room
@@ -35,7 +35,8 @@ export const createRoom = async (req, res) => {
 
     res.status(201).json({
       message: "Room created successfully",
-      room
+      room,
+      settings : roomSettings
     });
 
   } catch (error) {

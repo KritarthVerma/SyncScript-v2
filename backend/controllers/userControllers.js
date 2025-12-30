@@ -49,13 +49,7 @@ export const signup = async (req, res) => {
     return res.status(201).json({
       message: "Signup successful",
       token,
-      user: {
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        theme: user.theme,
-        fontSize: user.fontSize,
-      },
+      user,
     });
   } catch (err) {
     return res.status(500).json({ message: err.message });

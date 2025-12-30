@@ -148,7 +148,7 @@ export default function BurgerMenu({setInRoom,inRoom,editorRef,theme, setTheme, 
       const updatedUser = {
         ...user,
         currentRoomId: data.room._id,
-        activeSettingsId: data.room.settingsId,
+        activeSettingsId: data.settings,
       }
       saveUserSettings(updatedUser);
       setShowCreateRoomDialog(false);
