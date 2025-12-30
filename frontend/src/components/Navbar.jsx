@@ -1,6 +1,6 @@
 import BurgerMenu from "./BurgerMenu";
 
-export default function Navbar({inRoom,editorRef, theme, setTheme, fontSize, setFontSize, language, setLanguage }) {
+export default function Navbar({setInRoom,inRoom,editorRef, theme, setTheme, fontSize, setFontSize, language, setLanguage }) {
   return (
     <nav
       style={{
@@ -33,7 +33,7 @@ export default function Navbar({inRoom,editorRef, theme, setTheme, fontSize, set
       >
         SyncScript
       </div>
-      <BurgerMenu inRoom={inRoom} editorRef={editorRef} theme={theme} setTheme={setTheme} fontSize={fontSize} setFontSize={setFontSize} language={language} setLanguage={setLanguage}/>
+      <BurgerMenu setInRoom={setInRoom} inRoom={inRoom} editorRef={editorRef} theme={theme} setTheme={setTheme} fontSize={fontSize} setFontSize={setFontSize} language={language} setLanguage={setLanguage}/>
     </nav>
   );
 }

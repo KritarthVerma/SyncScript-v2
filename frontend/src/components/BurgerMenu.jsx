@@ -3,10 +3,14 @@ import api from '../utils/axios.js';
 import { getUserSettings, saveUserSettings,clearUserSettings } from '../utils/user.js';
 import {useNavigate} from 'react-router-dom';
 import { jsPDF } from "jspdf";
+import {generateUUID, menuItems, fontSizeOptions, themeOptions, languageOptions, roomOptions} from '../utils/helpers.js';
 
-export default function BurgerMenu({inRoom,editorRef,theme, setTheme, fontSize, setFontSize, language, setLanguage}) {
+export default function BurgerMenu({setInRoom,inRoom,editorRef,theme, setTheme, fontSize, setFontSize, language, setLanguage}) {
   const [isOpen, setIsOpen] = useState(false);
   const [activeSubmenu, setActiveSubmenu] = useState(null);
+  const [showCreateRoomDialog, setShowCreateRoomDialog] = useState(false);
+  const [roomId, setRoomId] = useState('');
+  const [roomPassword, setRoomPassword] = useState('');
 
   const navigate = useNavigate();
 
@@ -33,16 +37,13 @@ export default function BurgerMenu({inRoom,editorRef,theme, setTheme, fontSize, 
     if(item.label === 'Save'){
       const content = editorRef.current.getValue();
       try {
-        const { data } = await api.put("/editor/user", { content });
-        console.log("Content saved →", data);
         const user = getUserSettings();
+        const url = inRoom ? "/editor/room/" + user.currentRoomId : "/editor/user";
+        const { data } = await api.put(url, { content });
+        console.log("Content saved →", data);
         if (user) {
           const updatedUser = {
               ...user,
-              personalSettingsId: {
-                ...user.personalSettingsId,
-                content: data.settings.content
-              },
               activeSettingsId: {
                 ...user.activeSettingsId,
                 content : data.settings.content
@@ -115,6 +116,7 @@ export default function BurgerMenu({inRoom,editorRef,theme, setTheme, fontSize, 
   const handleRoomAction = (action) => {
     if (action === 'create' && !inRoom) {
       console.log('Creating room...');
+      setShowCreateRoomDialog(true);
       setIsOpen(false);
       setActiveSubmenu(null);
     } else if (action === 'join' && !inRoom) {
@@ -128,44 +130,39 @@ export default function BurgerMenu({inRoom,editorRef,theme, setTheme, fontSize, 
     }
   };
 
-  const menuItems = [
-    { label: 'Save', icon: '💾', shortcut: 'Ctrl+S' },
-    { type: 'separator' },
-    { label: 'Export', icon: '📤', shortcut: 'Ctrl+E' },
-    { type: 'separator' },
-    { label: 'Room', icon: '🚪', shortcut: '', hasSubmenu: true },
-    { type: 'separator' },
-    { label: 'Personalization', icon: '🎨', shortcut: '', hasSubmenu: true },
-    { type: 'separator' },
-    { label: 'Language', icon: '💻', shortcut: '', hasSubmenu: true },
-    { type: 'separator' },
-    { label: 'Logout', icon: '🚪', shortcut: '' }
-  ];
+  const handleGenerateRoomId = () => {
+    const uuid = generateUUID();
+    setRoomId(uuid);
+  };
 
-  const themeOptions = [
-    { value: 'dark', label: 'Dark', icon: '🌙' },
-    { value: 'light', label: 'Light', icon: '☀️' }
-  ];
+  const handleCreateRoom = async ()=>{
+    console.log("Room Created with ID:", roomId, "and Password:", roomPassword);
+    try {
+      const user = getUserSettings();
+      if(!user)return;
+      const { data } = await api.post("/room/create", {
+        roomId,
+        password: roomPassword
+      });
+      console.log("Room created successfully →", data);
+      const updatedUser = {
+        ...user,
+        currentRoomId: data.room._id,
+        activeSettingsId: data.room.settingsId,
+      }
+      saveUserSettings(updatedUser);
+      setShowCreateRoomDialog(false);
+      setInRoom(true);
+    } catch (err) {
+      console.error("Room creation failed:", err?.response?.data || err.message);
+    }
+  };
 
-  const fontSizeOptions = [
-    { value: 12, label: 'Small' },
-    { value: 14, label: 'Medium' },
-    { value: 16, label: 'Large' },
-    { value: 18, label: 'Extra Large' }
-  ];
-
-  const languageOptions = [
-    { value: 'cpp', label: 'C++' },
-    { value: 'python', label: 'Python' },
-    { value: 'javascript', label: 'JavaScript' },
-    { value: 'java', label: 'Java' }
-  ];
-
-  const roomOptions = [
-    { action: 'create', label: 'Create Room', icon: '➕' },
-    { action: 'join', label: 'Join Room', icon: '🔗' },
-    { action: 'leave', label: 'Leave Room', icon: '🚶' }
-  ];
+  const handleCancelCreateRoom = () => {
+    setShowCreateRoomDialog(false);
+    setRoomId('');
+    setRoomPassword('');
+  };
 
   return (
     <div style={{ position: 'relative' }}>
@@ -552,6 +549,206 @@ export default function BurgerMenu({inRoom,editorRef,theme, setTheme, fontSize, 
                 </div>
               );
             })}
+          </div>
+        </>
+      )}
+      {/* Create Room Dialog */}
+      {showCreateRoomDialog && (
+        <>
+          {/* Dialog Backdrop */}
+          <div
+            onClick={handleCancelCreateRoom}
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: 'rgba(0, 0, 0, 0.6)',
+              zIndex: 2000,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '20px'
+            }}
+          >
+            {/* Dialog Box */}
+            <div
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                backgroundColor: '#393E46',
+                borderRadius: '8px',
+                padding: '24px',
+                width: '100%',
+                maxWidth: '400px',
+                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
+                border: '1px solid #222831',
+                fontFamily: 'system-ui, -apple-system, sans-serif'
+              }}
+            >
+              {/* Dialog Header */}
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px',
+                marginBottom: '20px'
+              }}>
+                <span style={{ fontSize: '24px' }}>🚪</span>
+                <h2 style={{
+                  color: '#EEEEEE',
+                  fontSize: '20px',
+                  fontWeight: '600',
+                  margin: 0
+                }}>
+                  Create Room
+                </h2>
+              </div>
+
+              {/* Room ID Input */}
+              <div style={{ marginBottom: '16px' }}>
+                <label style={{
+                  display: 'block',
+                  color: '#EEEEEE',
+                  fontSize: '13px',
+                  fontWeight: '500',
+                  marginBottom: '8px'
+                }}>
+                  Room ID
+                </label>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <input
+                    type="text"
+                    value={roomId}
+                    onChange={(e) => setRoomId(e.target.value)}
+                    placeholder="Enter Room ID"
+                    style={{
+                      flex: 1,
+                      padding: '10px 12px',
+                      backgroundColor: '#222831',
+                      border: '2px solid transparent',
+                      borderRadius: '6px',
+                      color: '#EEEEEE',
+                      fontSize: '14px',
+                      outline: 'none',
+                      transition: 'border-color 0.3s',
+                      boxSizing: 'border-box'
+                    }}
+                    onFocus={(e) => e.target.style.borderColor = '#00ADB5'}
+                    onBlur={(e) => e.target.style.borderColor = 'transparent'}
+                  />
+                  <button
+                    onClick={handleGenerateRoomId}
+                    style={{
+                      padding: '10px 16px',
+                      backgroundColor: '#222831',
+                      border: '2px solid #00ADB5',
+                      borderRadius: '6px',
+                      color: '#EEEEEE',
+                      fontSize: '13px',
+                      fontWeight: '600',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s',
+                      whiteSpace: 'nowrap'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.target.style.backgroundColor = '#00ADB5';
+                      e.target.style.color = '#222831';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.backgroundColor = '#222831';
+                      e.target.style.color = '#EEEEEE';
+                    }}
+                  >
+                    Generate
+                  </button>
+                </div>
+              </div>
+
+              {/* Password Input */}
+              <div style={{ marginBottom: '24px' }}>
+                <label style={{
+                  display: 'block',
+                  color: '#EEEEEE',
+                  fontSize: '13px',
+                  fontWeight: '500',
+                  marginBottom: '8px'
+                }}>
+                  Password
+                </label>
+                <input
+                  type="password"
+                  value={roomPassword}
+                  onChange={(e) => setRoomPassword(e.target.value)}
+                  placeholder="Enter password"
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    backgroundColor: '#222831',
+                    border: '2px solid transparent',
+                    borderRadius: '6px',
+                    color: '#EEEEEE',
+                    fontSize: '14px',
+                    outline: 'none',
+                    transition: 'border-color 0.3s',
+                    boxSizing: 'border-box'
+                  }}
+                  onFocus={(e) => e.target.style.borderColor = '#00ADB5'}
+                  onBlur={(e) => e.target.style.borderColor = 'transparent'}
+                />
+              </div>
+
+              {/* Action Buttons */}
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <button
+                  onClick={handleCancelCreateRoom}
+                  style={{
+                    flex: 1,
+                    padding: '12px',
+                    backgroundColor: '#222831',
+                    border: 'none',
+                    borderRadius: '6px',
+                    color: '#EEEEEE',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.backgroundColor = '#1a1d23';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.backgroundColor = '#222831';
+                  }}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleCreateRoom}
+                  style={{
+                    flex: 1,
+                    padding: '12px',
+                    backgroundColor: '#00ADB5',
+                    border: 'none',
+                    borderRadius: '6px',
+                    color: '#222831',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.backgroundColor = '#00c9d1';
+                    e.target.style.transform = 'translateY(-1px)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.backgroundColor = '#00ADB5';
+                    e.target.style.transform = 'translateY(0)';
+                  }}
+                >
+                  Create Room
+                </button>
+              </div>
+            </div>
           </div>
         </>
       )}

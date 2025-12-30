@@ -8,7 +8,6 @@ export const saveUserSettings = (user) => {
 export const getUserSettings = () => {
   try {
     const data = localStorage.getItem(STORAGE_KEY);
-    console.log('Retrieved user data from localStorage:', data);
     return data ? JSON.parse(data) : null;
   } catch {
     return null;

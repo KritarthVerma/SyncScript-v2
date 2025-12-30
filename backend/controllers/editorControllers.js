@@ -24,7 +24,7 @@ export const updateUserSettings = async (req, res) => {
 // Update room settings
 export const updateRoomSettings = async (req, res) => {
   try {
-    const room = await Room.findOne({ externalId: req.params.externalId }).populate("settingsId");
+    const room = await Room.findOne({ _id : req.params.externalId }).populate("settingsId");
     if (!room || !room.settingsId)
       return res.status(404).json({ message: "Room settings not found" });
 

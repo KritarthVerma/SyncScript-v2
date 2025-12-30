@@ -16,7 +16,8 @@ export default function Editor(){
     setLanguage(newLanguage);
     try {
       // 2️⃣ Call backend API
-      const { data } = await api.put("editor/user", {
+      const url = inRoom ? "/editor/room/" + userSettings.currentRoomId : "/editor/user";
+      const { data } = await api.put(url, {
         language: newLanguage
       });
 
@@ -27,10 +28,6 @@ export default function Editor(){
       if (user) {
         const updatedUser = {
           ...user,
-          personalSettingsId: {
-            ...user.personalSettingsId,
-            language: data.settings.language
-          },
           activeSettingsId: {
             ...user.activeSettingsId,
             language: data.settings.language
@@ -82,7 +79,7 @@ export default function Editor(){
 
   return (
     <div style={styles.wrapper}>
-      <Navbar inRoom={inRoom} editorRef={editorRef} theme={theme} setTheme={handleThemeChange} fontSize={fontSize} setFontSize={handleFontSizeChange} language={language} setLanguage={handleLanguageChange}/>
+      <Navbar setInRoom={setInRoom}inRoom={inRoom} editorRef={editorRef} theme={theme} setTheme={handleThemeChange} fontSize={fontSize} setFontSize={handleFontSizeChange} language={language} setLanguage={handleLanguageChange}/>
       <EditorPanel onMount={handleEditorMount} content={userSettings.activeSettingsId.content} theme={theme} setTheme={handleThemeChange} fontSize={fontSize} setFontSize={handleFontSizeChange} language={language} setLanguage={handleLanguageChange}/>
     </div>
   );
