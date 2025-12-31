@@ -11,6 +11,9 @@ export default function BurgerMenu({setInRoom,inRoom,editorRef,theme, setTheme, 
   const [showCreateRoomDialog, setShowCreateRoomDialog] = useState(false);
   const [roomId, setRoomId] = useState('');
   const [roomPassword, setRoomPassword] = useState('');
+  const [showJoinRoomDialog, setShowJoinRoomDialog] = useState(false);
+  const [joinRoomId, setJoinRoomId] = useState('');
+  const [joinRoomPassword, setJoinRoomPassword] = useState('');
 
   const navigate = useNavigate();
 
@@ -121,6 +124,7 @@ export default function BurgerMenu({setInRoom,inRoom,editorRef,theme, setTheme, 
       setActiveSubmenu(null);
     } else if (action === 'join' && !inRoom) {
       console.log('Joining room...');
+      setShowJoinRoomDialog(true);
       setIsOpen(false);
       setActiveSubmenu(null);
     } else if (action === 'leave' && inRoom) {
@@ -176,6 +180,28 @@ export default function BurgerMenu({setInRoom,inRoom,editorRef,theme, setTheme, 
       console.error("Leave room failed:", err?.response?.data || err.message);
     }
   }
+
+  const handleJoinRoom = () => {
+    if (!joinRoomId.trim()) {
+      alert('Please enter a Room ID');
+      return;
+    }
+    if (!joinRoomPassword.trim()) {
+      alert('Please enter the password');
+      return;
+    }
+    console.log('Joining room with ID:', joinRoomId, 'and password:', joinRoomPassword);
+    setIsInRoom(true);
+    setShowJoinRoomDialog(false);
+    setJoinRoomId('');
+    setJoinRoomPassword('');
+  };
+
+  const handleCancelJoinRoom = () => {
+    setShowJoinRoomDialog(false);
+    setJoinRoomId('');
+    setJoinRoomPassword('');
+  };
 
   const handleCancelCreateRoom = () => {
     setShowCreateRoomDialog(false);
@@ -765,6 +791,179 @@ export default function BurgerMenu({setInRoom,inRoom,editorRef,theme, setTheme, 
                   }}
                 >
                   Create Room
+                </button>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+      {/* Join Room Dialog */}
+      {showJoinRoomDialog && (
+        <>
+          {/* Dialog Backdrop */}
+          <div
+            onClick={handleCancelJoinRoom}
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: 'rgba(0, 0, 0, 0.6)',
+              zIndex: 2000,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '20px'
+            }}
+          >
+            {/* Dialog Box */}
+            <div
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                backgroundColor: '#393E46',
+                borderRadius: '8px',
+                padding: '24px',
+                width: '100%',
+                maxWidth: '400px',
+                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
+                border: '1px solid #222831',
+                fontFamily: 'system-ui, -apple-system, sans-serif'
+              }}
+            >
+              {/* Dialog Header */}
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px',
+                marginBottom: '20px'
+              }}>
+                <span style={{ fontSize: '24px' }}>🔗</span>
+                <h2 style={{
+                  color: '#EEEEEE',
+                  fontSize: '20px',
+                  fontWeight: '600',
+                  margin: 0
+                }}>
+                  Join Room
+                </h2>
+              </div>
+
+              {/* Room ID Input */}
+              <div style={{ marginBottom: '16px' }}>
+                <label style={{
+                  display: 'block',
+                  color: '#EEEEEE',
+                  fontSize: '13px',
+                  fontWeight: '500',
+                  marginBottom: '8px'
+                }}>
+                  Room ID
+                </label>
+                <input
+                  type="text"
+                  value={joinRoomId}
+                  onChange={(e) => setJoinRoomId(e.target.value)}
+                  placeholder="Enter Room ID"
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    backgroundColor: '#222831',
+                    border: '2px solid transparent',
+                    borderRadius: '6px',
+                    color: '#EEEEEE',
+                    fontSize: '14px',
+                    outline: 'none',
+                    transition: 'border-color 0.3s',
+                    boxSizing: 'border-box'
+                  }}
+                  onFocus={(e) => e.target.style.borderColor = '#00ADB5'}
+                  onBlur={(e) => e.target.style.borderColor = 'transparent'}
+                />
+              </div>
+
+              {/* Password Input */}
+              <div style={{ marginBottom: '24px' }}>
+                <label style={{
+                  display: 'block',
+                  color: '#EEEEEE',
+                  fontSize: '13px',
+                  fontWeight: '500',
+                  marginBottom: '8px'
+                }}>
+                  Password
+                </label>
+                <input
+                  type="password"
+                  value={joinRoomPassword}
+                  onChange={(e) => setJoinRoomPassword(e.target.value)}
+                  placeholder="Enter password"
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    backgroundColor: '#222831',
+                    border: '2px solid transparent',
+                    borderRadius: '6px',
+                    color: '#EEEEEE',
+                    fontSize: '14px',
+                    outline: 'none',
+                    transition: 'border-color 0.3s',
+                    boxSizing: 'border-box'
+                  }}
+                  onFocus={(e) => e.target.style.borderColor = '#00ADB5'}
+                  onBlur={(e) => e.target.style.borderColor = 'transparent'}
+                />
+              </div>
+
+              {/* Action Buttons */}
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <button
+                  onClick={handleCancelJoinRoom}
+                  style={{
+                    flex: 1,
+                    padding: '12px',
+                    backgroundColor: '#222831',
+                    border: 'none',
+                    borderRadius: '6px',
+                    color: '#EEEEEE',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.backgroundColor = '#1a1d23';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.backgroundColor = '#222831';
+                  }}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleJoinRoom}
+                  style={{
+                    flex: 1,
+                    padding: '12px',
+                    backgroundColor: '#00ADB5',
+                    border: 'none',
+                    borderRadius: '6px',
+                    color: '#222831',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.backgroundColor = '#00c9d1';
+                    e.target.style.transform = 'translateY(-1px)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.backgroundColor = '#00ADB5';
+                    e.target.style.transform = 'translateY(0)';
+                  }}
+                >
+                  Join Room
                 </button>
               </div>
             </div>
