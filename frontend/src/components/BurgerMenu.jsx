@@ -181,7 +181,7 @@ export default function BurgerMenu({setInRoom,inRoom,editorRef,theme, setTheme, 
     }
   }
 
-  const handleJoinRoom = () => {
+  const handleJoinRoom = async () => {
     if (!joinRoomId.trim()) {
       alert('Please enter a Room ID');
       return;
@@ -190,8 +190,24 @@ export default function BurgerMenu({setInRoom,inRoom,editorRef,theme, setTheme, 
       alert('Please enter the password');
       return;
     }
-    console.log('Joining room with ID:', joinRoomId, 'and password:', joinRoomPassword);
-    setIsInRoom(true);
+    try {
+      const user = getUserSettings();
+      if(!user)return;
+      const { data } = await api.post("/room/join", { 
+        roomId: joinRoomId,
+        password: joinRoomPassword
+      });
+      console.log("Joined room successfully →", data);
+      const updatedUser = {
+        ...user,
+        currentRoomId: data.room._id,
+        activeSettingsId: data.room.settingsId,
+      };
+      saveUserSettings(updatedUser);
+    } catch (error) {
+      console.log("Join room failed:", error?.response?.data || error.message);
+    }
+    setInRoom(true);
     setShowJoinRoomDialog(false);
     setJoinRoomId('');
     setJoinRoomPassword('');

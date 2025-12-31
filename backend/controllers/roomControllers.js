@@ -52,7 +52,7 @@ export const joinRoom = async (req, res) => {
 
     if (!roomId || !password) return res.status(400).json({ message: "Room ID and password are required" });
 
-    const room = await Room.findOne({ externalId: roomId });
+    const room = await Room.findOne({ externalId: roomId }).populate("settingsId");
     if (!room) return res.status(404).json({ message: "Room not found" });
 
     // Check password
@@ -69,7 +69,7 @@ export const joinRoom = async (req, res) => {
     await room.save();
 
     // Update user state
-    await updateUserRoom(userId, room._id, room.settingsId);
+    await updateUserRoom(userId, room._id, room.settingsId._id);
 
     res.status(200).json({
       message: "Joined room successfully",
