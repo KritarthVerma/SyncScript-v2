@@ -6,7 +6,7 @@ const router = express.Router();
 
 router.post("/create", authMiddleware, createRoom);
 router.post("/join", authMiddleware, joinRoom);
-router.post("/leave/:externalId", authMiddleware, leaveRoom);
+router.post("/leave", authMiddleware, leaveRoom);
 router.get("/:externalId", authMiddleware, getRoom);
 
 export default router;

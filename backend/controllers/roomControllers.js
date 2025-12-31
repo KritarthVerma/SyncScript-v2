@@ -84,10 +84,10 @@ export const joinRoom = async (req, res) => {
 
 export const leaveRoom = async (req, res) => {
   try {
-    const { externalId } = req.params;
+    const roomId = req.body.roomId;
     const userId = req.userId;
 
-    const room = await Room.findOne({ externalId });
+    const room = await Room.findById(roomId);
 
     if (!room)
       return res.status(404).json({ message: "Room not found" });

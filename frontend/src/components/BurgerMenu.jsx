@@ -124,7 +124,7 @@ export default function BurgerMenu({setInRoom,inRoom,editorRef,theme, setTheme, 
       setIsOpen(false);
       setActiveSubmenu(null);
     } else if (action === 'leave' && inRoom) {
-      console.log('Leaving room...');
+      handleLeaveRoom();
       setIsOpen(false);
       setActiveSubmenu(null);
     }
@@ -157,6 +157,25 @@ export default function BurgerMenu({setInRoom,inRoom,editorRef,theme, setTheme, 
       console.error("Room creation failed:", err?.response?.data || err.message);
     }
   };
+
+  const handleLeaveRoom = async ()=>{
+    try {
+      const user = getUserSettings();
+      if (!user?.currentRoomId) return;
+      const { data } = await api.post("/room/leave/",{ roomId: user.currentRoomId}); 
+      // if you stored externalId somewhere; else send externalId from UI
+
+      const updatedUser = {
+        ...user,
+        currentRoomId: null,
+        activeSettingsId: user.personalSettingsId,
+      };
+      saveUserSettings(updatedUser);
+      setInRoom(false);
+    } catch (err) {
+      console.error("Leave room failed:", err?.response?.data || err.message);
+    }
+  }
 
   const handleCancelCreateRoom = () => {
     setShowCreateRoomDialog(false);
