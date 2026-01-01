@@ -4,6 +4,7 @@ import { getUserSettings, saveUserSettings,clearUserSettings } from '../utils/us
 import {useNavigate} from 'react-router-dom';
 import { jsPDF } from "jspdf";
 import {generateUUID, menuItems, fontSizeOptions, themeOptions, languageOptions, roomOptions} from '../utils/helpers.js';
+import {socket} from '../config/socket.js';
 
 export default function BurgerMenu({setInRoom,inRoom,editorRef,theme, setTheme, fontSize, setFontSize, language, setLanguage}) {
   const [isOpen, setIsOpen] = useState(false);
@@ -154,7 +155,11 @@ export default function BurgerMenu({setInRoom,inRoom,editorRef,theme, setTheme, 
         currentRoomId: data.room._id,
         activeSettingsId: data.settings,
       }
-      saveUserSettings(updatedUser);
+      saveUserSettings(updatedUser)
+      socket.emit("join-room", {
+        roomId: data.room._id,
+        userId: user._id
+      });
       setShowCreateRoomDialog(false);
       setInRoom(true);
     } catch (err) {
@@ -204,6 +209,16 @@ export default function BurgerMenu({setInRoom,inRoom,editorRef,theme, setTheme, 
         activeSettingsId: data.room.settingsId,
       };
       saveUserSettings(updatedUser);
+      socket.emit("join-room", {
+        roomId: data.room._id,
+        userId: user._id
+      });
+      socket.on("user-joined", ({ name }) => {
+        console.log(name, "joined");
+      });
+      socket.on("join-room-success", () => {
+        console.log("Socket join success");
+      });
     } catch (error) {
       console.log("Join room failed:", error?.response?.data || error.message);
     }
