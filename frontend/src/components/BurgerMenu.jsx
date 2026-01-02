@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useEffect,useState } from 'react';
 import api from '../utils/axios.js';
 import { getUserSettings, saveUserSettings,clearUserSettings } from '../utils/user.js';
 import {useNavigate} from 'react-router-dom';
 import { jsPDF } from "jspdf";
 import {generateUUID, menuItems, fontSizeOptions, themeOptions, languageOptions, roomOptions} from '../utils/helpers.js';
 import {socket} from '../config/socket.js';
+import {toast} from 'react-toastify'
 
 export default function BurgerMenu({setInRoom,inRoom,editorRef,theme, setTheme, fontSize, setFontSize, language, setLanguage}) {
   const [isOpen, setIsOpen] = useState(false);
@@ -217,12 +218,6 @@ export default function BurgerMenu({setInRoom,inRoom,editorRef,theme, setTheme, 
         roomId: data.room._id,
         userId: user._id
       });
-      socket.on("user-joined", ({ name }) => {
-        console.log(name, "joined");
-      });
-      socket.on("join-room-success", () => {
-        console.log("Socket join success");
-      });
     } catch (error) {
       console.log("Join room failed:", error?.response?.data || error.message);
     }
@@ -243,6 +238,65 @@ export default function BurgerMenu({setInRoom,inRoom,editorRef,theme, setTheme, 
     setRoomId('');
     setRoomPassword('');
   };
+
+  useEffect(() => {
+
+    socket.on("user-joined", (data) => {
+      if(data.userId !== getUserSettings()._id){
+        toast.info(`${data.name} joined the room`, {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true
+        });
+      }
+    });
+
+    socket.on("join-room-success", () => {
+        toast.success("You have joined the room successfully!", {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true
+        })
+    });
+
+    socket.on("user-left", (data) => {
+      if(data.userId !== getUserSettings()._id){
+        toast.info(`${data.name} left the room`, {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true
+        });
+      }
+    })
+
+    socket.on("left-room-success", () => {
+      toast.success("You have left the room successfully!", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true
+      });
+    });
+
+    // cleanup to avoid duplicate listeners
+    return () => {
+      socket.off("user-joined");
+      socket.off("join-room-success");
+      socket.off("user-left");
+      socket.off("left-room-success");
+    };
+  }, []);
 
   return (
     <div style={{ position: 'relative' }}>
