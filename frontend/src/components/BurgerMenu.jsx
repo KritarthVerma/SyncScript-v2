@@ -181,6 +181,10 @@ export default function BurgerMenu({setInRoom,inRoom,editorRef,theme, setTheme, 
       };
       saveUserSettings(updatedUser);
       setInRoom(false);
+      socket.emit("leave-room", {
+        roomId: user.currentRoomId,
+        userId: user._id
+      });
     } catch (err) {
       console.error("Leave room failed:", err?.response?.data || err.message);
     }

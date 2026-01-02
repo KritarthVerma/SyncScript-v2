@@ -38,6 +38,29 @@ export const initSocket = (server) => {
       }
     });
 
+    socket.on("leave-room", async ({ roomId, userId }) => {
+      try {
+        socket.leave(roomId);
+
+        const user = await User.findById(userId);
+
+        // notify others
+        socket.to(roomId).emit("user-left", {
+          userId,
+          name: user.name
+        });
+
+        // acknowledge client
+        socket.emit("left-room-success");
+        console.log(`${user.name} with id ${userId} left room ${roomId}`);
+
+      } catch (err) {
+        console.log("Leave Room Error:", err);
+        socket.emit("left-room-failed");
+      }
+    });
+
+
     socket.on("disconnect", () => {
       console.log("🔴 Client disconnected:", socket.id);
     });
