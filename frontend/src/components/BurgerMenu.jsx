@@ -163,6 +163,8 @@ export default function BurgerMenu({setInRoom,inRoom,editorRef,theme, setTheme, 
       });
       setShowCreateRoomDialog(false);
       setInRoom(true);
+      setRoomId('');
+      setRoomPassword('');
     } catch (err) {
       console.error("Room creation failed:", err?.response?.data || err.message);
     }
@@ -181,11 +183,11 @@ export default function BurgerMenu({setInRoom,inRoom,editorRef,theme, setTheme, 
         activeSettingsId: user.personalSettingsId,
       };
       saveUserSettings(updatedUser);
-      setInRoom(false);
       socket.emit("leave-room", {
         roomId: user.currentRoomId,
         userId: user._id
       });
+      setInRoom(false);
     } catch (err) {
       console.error("Leave room failed:", err?.response?.data || err.message);
     }
