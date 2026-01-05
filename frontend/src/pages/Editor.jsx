@@ -12,8 +12,9 @@ export default function Editor(){
   const [inRoom, setInRoom] = useState(userSettings.currentRoomId ? true : false);
   const editorRef = useRef(null);
 
-  const handleLanguageChange = async (newLanguage) => {
+  const handleLanguageChange = async (newLanguage,updateDB = true) => {
     setLanguage(newLanguage);
+    if(!updateDB) return;
     try {
       // 2️⃣ Call backend API
       const url = inRoom ? "/editor/room/" + userSettings.currentRoomId : "/editor/user";

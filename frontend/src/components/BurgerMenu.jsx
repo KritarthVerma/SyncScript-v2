@@ -162,9 +162,10 @@ export default function BurgerMenu({setInRoom,inRoom,editorRef,theme, setTheme, 
         userId: user._id
       });
       setShowCreateRoomDialog(false);
-      setInRoom(true);
       setRoomId('');
       setRoomPassword('');
+      setInRoom(true);
+      setLanguage(data.settings.language,false);
     } catch (err) {
       console.error("Room creation failed:", err?.response?.data || err.message);
     }
