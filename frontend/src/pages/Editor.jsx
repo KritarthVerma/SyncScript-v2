@@ -15,6 +15,7 @@ export default function Editor(){
   const handleLanguageChange = async (newLanguage,updateDB = true) => {
     setLanguage(newLanguage);
     if(!updateDB) return;
+    console.log("Updating language to:", newLanguage, "inRoom:", inRoom);
     try {
       // 2️⃣ Call backend API
       const url = inRoom ? "/editor/room/" + userSettings.currentRoomId : "/editor/user";
@@ -27,13 +28,24 @@ export default function Editor(){
       // 3️⃣ Update localStorage safely
       const user = getUserSettings();
       if (user) {
-        const updatedUser = {
+        let updatedUser = {
           ...user,
           activeSettingsId: {
             ...user.activeSettingsId,
             language: data.settings.language
           }
         };
+
+        if(!inRoom){
+          console.log("Updating personalSettingsId language");
+          updatedUser = {
+            ...updatedUser,
+            personalSettingsId: {
+              ...updatedUser.personalSettingsId,
+              language: data.settings.language
+            }
+          };
+        }
 
         saveUserSettings(updatedUser);
         console.log("LocalStorage user updated →", updatedUser);

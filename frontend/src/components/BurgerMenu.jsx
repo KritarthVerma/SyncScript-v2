@@ -189,6 +189,7 @@ export default function BurgerMenu({setInRoom,inRoom,editorRef,theme, setTheme, 
         userId: user._id
       });
       setInRoom(false);
+      setLanguage(updatedUser.activeSettingsId.language,false);
     } catch (err) {
       console.error("Leave room failed:", err?.response?.data || err.message);
     }
@@ -221,13 +222,14 @@ export default function BurgerMenu({setInRoom,inRoom,editorRef,theme, setTheme, 
         roomId: data.room._id,
         userId: user._id
       });
+      setShowJoinRoomDialog(false);
+      setJoinRoomId('');
+      setJoinRoomPassword('');
+      setInRoom(true);
+      setLanguage(data.room.settingsId.language,false);
     } catch (error) {
       console.log("Join room failed:", error?.response?.data || error.message);
     }
-    setInRoom(true);
-    setShowJoinRoomDialog(false);
-    setJoinRoomId('');
-    setJoinRoomPassword('');
   };
 
   const handleCancelJoinRoom = () => {
