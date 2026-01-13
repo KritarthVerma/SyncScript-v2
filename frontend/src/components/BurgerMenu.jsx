@@ -54,6 +54,12 @@ export default function BurgerMenu({setInRoom,inRoom,editorRef,theme, setTheme, 
                 content : data.settings.content
               }
             };
+          if(!inRoom){
+            updatedUser.personalSettingsId = {
+              ...user.personalSettingsId,
+              content : data.settings.content
+            };
+          }
           saveUserSettings(updatedUser);
         }
       } catch (err) {
