@@ -86,8 +86,26 @@ export default function Editor(){
     editorRef.current = editor;
   }
 
-  const handleThemeChange = (newTheme) => {
+  const handleThemeChange = async (newTheme) => {
     setTheme(newTheme);
+    try {
+      const { data } = await api.patch("user/settings/theme", {
+        theme: newTheme
+      });
+
+      // 2️⃣ Merge + update localStorage user
+      const user = getUserSettings();
+      if (user) {
+        const updatedUser = {
+          ...user,
+          theme: data.theme
+        };
+        saveUserSettings(updatedUser);
+      }
+
+    } catch (err) {
+      console.error("Theme update failed:", err?.response?.data || err.message);
+    }
   };
 
   return (

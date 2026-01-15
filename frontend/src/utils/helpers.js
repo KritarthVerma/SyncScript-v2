@@ -21,8 +21,8 @@ export const menuItems = [
 ];
 
 export const themeOptions = [
-    { value: 'dark', label: 'Dark', icon: '🌙' },
-    { value: 'light', label: 'Light', icon: '☀️' }
+    { value: 'vs-dark', label: 'Dark', icon: '🌙' },
+    { value: 'vs-light', label: 'Light', icon: '☀️' }
 ];
 
 export const fontSizeOptions = [

@@ -24,7 +24,7 @@ const userSchema = new mongoose.Schema(
     // Personalization (per user)
     theme: {
       type: String,
-      default: "dark",
+      default: "vs-dark",
     },
 
     fontSize: {
