@@ -110,8 +110,8 @@ export default function Editor(){
 
   return (
     <div style={styles.wrapper}>
-      <Navbar setInRoom={setInRoom}inRoom={inRoom} editorRef={editorRef} theme={theme} setTheme={handleThemeChange} fontSize={fontSize} setFontSize={handleFontSizeChange} language={language} setLanguage={handleLanguageChange}/>
-      <EditorPanel onMount={handleEditorMount} content={userSettings.activeSettingsId.content} theme={theme} setTheme={handleThemeChange} fontSize={fontSize} setFontSize={handleFontSizeChange} language={language} setLanguage={handleLanguageChange}/>
+      <Navbar setInRoom={setInRoom} inRoom={inRoom} editorRef={editorRef} theme={theme} setTheme={handleThemeChange} fontSize={fontSize} setFontSize={handleFontSizeChange} language={language} setLanguage={handleLanguageChange}/>
+      <EditorPanel inRoom={inRoom} onMount={handleEditorMount} initialContent={userSettings.activeSettingsId.content} theme={theme} setTheme={handleThemeChange} fontSize={fontSize} setFontSize={handleFontSizeChange} language={language} setLanguage={handleLanguageChange}/>
     </div>
   );
 };
