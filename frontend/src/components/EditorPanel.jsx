@@ -1,10 +1,11 @@
 import MonacoEditor from "@monaco-editor/react";
 import { useEffect, useRef } from "react";
 import { getUserSettings, saveUserSettings } from "../utils/user";
+import {socket} from "../config/socket.js";
 
 export default function EditorPanel({inRoom,onMount,initialContent, theme, setTheme, fontSize, setFontSize, language, setLanguage}) {
   const saveTimeoutRef = useRef(null);
-  
+
   const handleEditorChange = (newValue) => {
     if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
 

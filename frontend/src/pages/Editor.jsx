@@ -1,7 +1,9 @@
 import Navbar from "../components/Navbar";
 import EditorPanel from "../components/EditorPanel";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import api from "../utils/axios";
+import {socket} from "../config/socket.js";
+import { toast } from "react-toastify";
 import { getUserSettings, saveUserSettings } from "../utils/user";
 
 export default function Editor(){
@@ -107,6 +109,65 @@ export default function Editor(){
       console.error("Theme update failed:", err?.response?.data || err.message);
     }
   };
+
+  useEffect(() => {
+  
+      socket.on("user-joined", (data) => {
+        if(data.userId !== getUserSettings()._id){
+          toast.info(`${data.name} joined the room`, {
+            position: "top-right",
+            autoClose: 3000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true
+          });
+        }
+      });
+  
+      socket.on("join-room-success", () => {
+          toast.success("You have joined the room successfully!", {
+            position: "top-right",
+            autoClose: 3000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true
+          })
+      });
+  
+      socket.on("user-left", (data) => {
+        if(data.userId !== getUserSettings()._id){
+          toast.info(`${data.name} left the room`, {
+            position: "top-right",
+            autoClose: 3000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true
+          });
+        }
+      })
+  
+      socket.on("left-room-success", () => {
+        toast.success("You have left the room successfully!", {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true
+        });
+      });
+  
+      // cleanup to avoid duplicate listeners
+      return () => {
+        socket.off("user-joined");
+        socket.off("join-room-success");
+        socket.off("user-left");
+        socket.off("left-room-success");
+      };
+    }, []);
 
   return (
     <div style={styles.wrapper}>

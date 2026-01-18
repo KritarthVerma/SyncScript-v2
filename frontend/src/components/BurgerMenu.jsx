@@ -165,7 +165,9 @@ export default function BurgerMenu({setInRoom,inRoom,editorRef,theme, setTheme, 
       saveUserSettings(updatedUser)
       socket.emit("join-room", {
         roomId: data.room._id,
-        userId: user._id
+        userId: user._id,
+        content : data.settings.content,
+        language: data.settings.language
       });
       setShowCreateRoomDialog(false);
       setRoomId('');
@@ -249,65 +251,6 @@ export default function BurgerMenu({setInRoom,inRoom,editorRef,theme, setTheme, 
     setRoomId('');
     setRoomPassword('');
   };
-
-  useEffect(() => {
-
-    socket.on("user-joined", (data) => {
-      if(data.userId !== getUserSettings()._id){
-        toast.info(`${data.name} joined the room`, {
-          position: "top-right",
-          autoClose: 3000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true
-        });
-      }
-    });
-
-    socket.on("join-room-success", () => {
-        toast.success("You have joined the room successfully!", {
-          position: "top-right",
-          autoClose: 3000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true
-        })
-    });
-
-    socket.on("user-left", (data) => {
-      if(data.userId !== getUserSettings()._id){
-        toast.info(`${data.name} left the room`, {
-          position: "top-right",
-          autoClose: 3000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true
-        });
-      }
-    })
-
-    socket.on("left-room-success", () => {
-      toast.success("You have left the room successfully!", {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true
-      });
-    });
-
-    // cleanup to avoid duplicate listeners
-    return () => {
-      socket.off("user-joined");
-      socket.off("join-room-success");
-      socket.off("user-left");
-      socket.off("left-room-success");
-    };
-  }, []);
 
   return (
     <div style={{ position: 'relative' }}>

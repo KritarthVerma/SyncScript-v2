@@ -2,6 +2,8 @@ import { Server } from "socket.io";
 import Room from "../models/roomModel.js";
 import User from "../models/userModel.js";
 
+const roomMap = new Map();
+
 export const initSocket = (server) => {
   const io = new Server(server, {
     cors: {
@@ -13,11 +15,19 @@ export const initSocket = (server) => {
   io.on("connection", (socket) => {
     console.log("🟢 Client connected:", socket.id);
 
-    socket.on("join-room", async ({ roomId, userId }) => {
+    socket.on("join-room", async ({ roomId, userId, language, content }) => {
       try {
         const user = await User.findById(userId);
         const room = await Room.findById(roomId);
         if (!room || !user) return;
+
+        if (!roomMap.has(roomId)) {
+          // First user in: Store the content/language they provided
+          roomMap.set(roomId, { 
+            content: content || "", 
+            language: language || "javascript" 
+          });
+        }
 
         socket.join(roomId);
 
@@ -28,7 +38,9 @@ export const initSocket = (server) => {
 
         socket.emit("join-room-success", {
           room,
-          user
+          user,
+          content: roomMap.get(roomId).content,
+          language: roomMap.get(roomId).language
         });
 
         console.log(`${user.name} with id ${userId} joined room ${roomId}`);
